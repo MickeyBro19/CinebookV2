@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface TheatreRepo extends JpaRepository<Theatre,Long> {
 	List<Theatre> findByNameContainingIgnoreCase(String title);
 	Optional<Theatre> findByNameIgnoreCase(String title);
+	boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }

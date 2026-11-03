@@ -58,7 +58,7 @@ public class TheatreController {
 	@PutMapping
 	public ResponseEntity<TheatreResponse> updateTheatre(
 			@RequestParam Long id,
-			@RequestBody CreateTheatreRequest theatre) {
+			@Valid @RequestBody CreateTheatreRequest theatre) {
 		
 		return ResponseEntity.ok(
 				theatreService.updateTheatre(id, theatre)

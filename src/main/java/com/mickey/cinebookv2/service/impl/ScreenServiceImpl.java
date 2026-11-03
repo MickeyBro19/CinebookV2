@@ -68,7 +68,7 @@ public class ScreenServiceImpl implements ScreenService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ScreenResponse> getScreen(String name) {
-		if (name.isEmpty()|| name.trim().isEmpty() ) {
+		if (name==null || name.trim().isEmpty() ) {
 			throw new IllegalArgumentException("Name is empty");
 		}
 		

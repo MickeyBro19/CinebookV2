@@ -26,7 +26,7 @@ public class TheatreServiceImpl implements TheatreService {
 			throw new IllegalArgumentException("theatre already exists");
 		}
 		Theatre theatre1 = Theatre.builder()
-				.name(name).address(theatre.address()).city(theatre.city()).build();
+				.name(name).address(theatre.address().trim()).city(theatre.city().trim()).build();
 		return theatreMapper(theatreRepo.save(theatre1));
 	}
 	
@@ -58,6 +58,9 @@ public class TheatreServiceImpl implements TheatreService {
 	public TheatreResponse updateTheatre(Long id, CreateTheatreRequest theatre) {
 		if(id == null) {
 			throw new IllegalArgumentException("theatre id is null");
+		}
+		if(theatreRepo.existsByNameIgnoreCaseAndIdNot(theatre.name(), id)) {
+			throw new IllegalArgumentException("theatre already exists");
 		}
 		Theatre theatre1 = theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
 		theatre1.setName(theatre.name().trim());

@@ -8,6 +8,12 @@ import java.util.Optional;
 
 public interface MovieRepo extends JpaRepository<Movie, Long> {
 	List<Movie> findByTitleContainingIgnoreCase(String title);
+	
 	Optional<Movie> findByTitleIgnoreCase(String title);
+	
+	boolean existsByTitleIgnoreCaseAndIdNot(
+			String title,
+			Long id
+	                                       );
 	
 }
