@@ -2,7 +2,6 @@ package com.mickey.cinebookv2.controller;
 
 import com.mickey.cinebookv2.dto.CreateMovieRequest;
 import com.mickey.cinebookv2.dto.MovieResponse;
-import com.mickey.cinebookv2.entity.Movie;
 import com.mickey.cinebookv2.service.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,11 +57,11 @@ public class MovieController {
 	// Update a movie by title
 	@PutMapping
 	public ResponseEntity<MovieResponse> updateMovie(
-			@RequestParam String title,
+			@RequestParam Long id,
 			@RequestBody CreateMovieRequest movie) {
 		
 		return ResponseEntity.ok(
-				movieService.updateMovie(title, movie)
+				movieService.updateMovie(id, movie)
 		                        );
 	}
 	

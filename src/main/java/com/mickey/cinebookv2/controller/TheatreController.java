@@ -57,11 +57,11 @@ public class TheatreController {
 	// Update a theatre by title
 	@PutMapping
 	public ResponseEntity<TheatreResponse> updateTheatre(
-			@RequestParam String title,
+			@RequestParam Long id,
 			@RequestBody CreateTheatreRequest theatre) {
 		
 		return ResponseEntity.ok(
-				theatreService.updateTheatre(title, theatre)
+				theatreService.updateTheatre(id, theatre)
 		                        );
 	}
 	

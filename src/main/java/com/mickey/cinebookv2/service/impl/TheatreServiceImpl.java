@@ -54,11 +54,11 @@ public class TheatreServiceImpl implements TheatreService {
 	}
 	
 	@Override
-	public TheatreResponse updateTheatre(String Name, CreateTheatreRequest theatre) {
-		if (Name == null || Name.isEmpty()) {
-			throw new IllegalArgumentException("Theatre title is null or empty");
+	public TheatreResponse updateTheatre(Long id, CreateTheatreRequest theatre) {
+		if(id == null) {
+			throw new IllegalArgumentException("theatre id is null");
 		}
-		Theatre theatre1 = theatreRepo.findByNameIgnoreCase(Name).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
+		Theatre theatre1 = theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
 		theatre1.setName(theatre.name());
 		theatre1.setAddress(theatre.address());
 		theatre1.setCity(theatre.city());

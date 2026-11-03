@@ -10,6 +10,6 @@ public interface TheatreService {
 	TheatreResponse createTheatre(CreateTheatreRequest theatre);
 	Page<TheatreResponse> getTheatres(int page, int pageSize);
 	List<TheatreResponse> getTheatre(String Name);
-	TheatreResponse updateTheatre(String Name,CreateTheatreRequest theatre);
+	TheatreResponse updateTheatre(Long id,CreateTheatreRequest theatre);
 	void deleteTheatre(String Name);
 }

@@ -64,12 +64,12 @@ public class MovieServiceImpl implements MovieService {
 	}
 	
 	@Override
-	public MovieResponse updateMovie(String title, CreateMovieRequest movie) {
-		if (title == null || title.trim().isEmpty()) {
-			throw new IllegalArgumentException("title is null or empty");
+	public MovieResponse updateMovie(Long id, CreateMovieRequest movie) {
+		if(id==null) {
+			throw new IllegalArgumentException("Movie Id is null");
 		}
-		Movie uMovie = movieRepo.findByTitleIgnoreCase(title).orElseThrow(() -> new IllegalArgumentException("Movie not found"));
-		uMovie.setTitle(title.trim());
+		Movie uMovie = movieRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie not found"));
+		uMovie.setTitle(movie.title().trim());
 		uMovie.setSynopsis(movie.synopsis());
 		uMovie.setDurationMinutes(movie.durationMinutes());
 		uMovie.setReleaseDate(movie.releaseDate());
