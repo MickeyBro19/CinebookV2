@@ -66,11 +66,11 @@ public class TheatreController {
 	}
 	
 	// Delete a theatre by title
-	@DeleteMapping
+	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteTheatre(
-			@RequestParam String title) {
+			@PathVariable Long id) {
 		
-		theatreService.deleteTheatre(title);
+		theatreService.deleteTheatre(id);
 		
 		return ResponseEntity.noContent().build();
 	}

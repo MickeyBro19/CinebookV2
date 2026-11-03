@@ -66,11 +66,11 @@ public class MovieController {
 	}
 	
 	// Delete a movie by title
-	@DeleteMapping
+	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteMovie(
-			@RequestParam String title) {
+			@PathVariable Long id) {
 		
-		movieService.deleteMovie(title);
+		movieService.deleteMovie(id);
 		
 		return ResponseEntity.noContent().build();
 	}

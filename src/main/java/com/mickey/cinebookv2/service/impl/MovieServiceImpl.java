@@ -83,11 +83,8 @@ public class MovieServiceImpl implements MovieService {
 	}
 	
 	@Override
-	public void deleteMovie(String title) {
-		if (title == null || title.trim().isEmpty()) {
-			throw new IllegalArgumentException("title is null or empty");
-		}
-		Movie movie = movieRepo.findByTitleIgnoreCase(title).orElseThrow(() -> new IllegalArgumentException("Movie not found"));
+	public void deleteMovie(Long id) {
+		Movie movie = movieRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie not found"));
 		movieRepo.delete(movie);
 		
 	}

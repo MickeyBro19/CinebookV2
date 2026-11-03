@@ -11,5 +11,5 @@ public interface MovieService {
 	Page<MovieResponse> getMovies(int page, int pageSize);
 	List<MovieResponse> getMovie(String title);
 	MovieResponse updateMovie(Long id,CreateMovieRequest movie);
-	void deleteMovie(String title);
+	void deleteMovie(Long id);
 }

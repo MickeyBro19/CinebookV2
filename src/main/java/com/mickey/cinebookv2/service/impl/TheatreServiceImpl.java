@@ -70,11 +70,8 @@ public class TheatreServiceImpl implements TheatreService {
 	}
 	
 	@Override
-	public void deleteTheatre(String Name) {
-		if (Name == null || Name.trim().isBlank()) {
-			throw new IllegalArgumentException("title is null or empty");
-		}
-		Theatre theatre= theatreRepo.findByNameIgnoreCase(Name).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
+	public void deleteTheatre(Long id) {
+		Theatre theatre= theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
 		theatreRepo.delete(theatre);
 		
 	}

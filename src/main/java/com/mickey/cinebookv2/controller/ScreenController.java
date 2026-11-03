@@ -34,6 +34,9 @@ public class ScreenController {
 	public ResponseEntity<Page<ScreenResponse>> getScreens(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int pageSize) {
+		if (page < 0 || pageSize < 1 || pageSize > 100) {
+			return ResponseEntity.badRequest().build();
+		}
 		
 		return ResponseEntity.ok(
 				screenService.getScreens(page, pageSize)

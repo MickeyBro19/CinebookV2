@@ -11,5 +11,5 @@ public interface TheatreService {
 	Page<TheatreResponse> getTheatres(int page, int pageSize);
 	List<TheatreResponse> getTheatre(String Name);
 	TheatreResponse updateTheatre(Long id,CreateTheatreRequest theatre);
-	void deleteTheatre(String Name);
+	void deleteTheatre(Long id);
 }
