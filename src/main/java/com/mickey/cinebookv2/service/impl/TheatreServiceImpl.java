@@ -3,6 +3,7 @@ package com.mickey.cinebookv2.service.impl;
 import com.mickey.cinebookv2.dto.CreateTheatreRequest;
 import com.mickey.cinebookv2.dto.TheatreResponse;
 import com.mickey.cinebookv2.entity.Theatre;
+import com.mickey.cinebookv2.repo.ScreenRepo;
 import com.mickey.cinebookv2.repo.TheatreRepo;
 import com.mickey.cinebookv2.service.TheatreService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @Transactional
 public class TheatreServiceImpl implements TheatreService {
 	private final TheatreRepo theatreRepo;
+	private final ScreenRepo screenRepo;
 	
 	@Override
 	public TheatreResponse createTheatre(CreateTheatreRequest theatre) {
@@ -72,6 +74,9 @@ public class TheatreServiceImpl implements TheatreService {
 	@Override
 	public void deleteTheatre(Long id) {
 		Theatre theatre= theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
+		if(screenRepo.existsByTheatreId(id)){
+			throw new IllegalArgumentException("Cannot delete theatre containing screens");
+		}
 		theatreRepo.delete(theatre);
 		
 	}

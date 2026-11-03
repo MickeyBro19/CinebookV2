@@ -61,7 +61,7 @@ public class MovieServiceImpl implements MovieService {
 		if (title == null || title.trim().isEmpty()) {
 			throw new IllegalArgumentException("Movie title is null or empty");
 		}
-		return movieRepo.findByTitleContainingIgnoreCase(title).stream().map(this::movieMapper).toList();
+		return movieRepo.findByTitleContainingIgnoreCase(title.trim()).stream().map(this::movieMapper).toList();
 	}
 	
 	@Override

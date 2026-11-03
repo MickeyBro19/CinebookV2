@@ -55,9 +55,9 @@ public class MovieController {
 	}
 	
 	// Update a movie by title
-	@PutMapping
+	@PutMapping("/{id}")
 	public ResponseEntity<MovieResponse> updateMovie(
-			@RequestParam Long id,
+			@PathVariable Long id,
 			@Valid @RequestBody CreateMovieRequest movie) {
 		
 		return ResponseEntity.ok(
