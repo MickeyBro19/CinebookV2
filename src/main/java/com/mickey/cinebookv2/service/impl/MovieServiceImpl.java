@@ -69,7 +69,7 @@ public class MovieServiceImpl implements MovieService {
 		if(id==null) {
 			throw new IllegalArgumentException("Movie Id is null");
 		}
-		if(movieRepo.existsByTitleIgnoreCaseAndIdNot(movie.title(), id)) {
+		if(movieRepo.existsByTitleIgnoreCaseAndIdNot(movie.title().trim(), id)) {
 			throw new IllegalArgumentException("Title already exists");
 		}
 		Movie uMovie = movieRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie not found"));

@@ -48,7 +48,7 @@ public class TheatreServiceImpl implements TheatreService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<TheatreResponse> getTheatre(String Name) {
-		if (Name == null || Name.isEmpty()) {
+		if (Name == null || Name.isBlank()) {
 			throw new IllegalArgumentException("Theatre title is null or empty");
 		}
 		return theatreRepo.findByNameContainingIgnoreCase(Name).stream().map(this :: theatreMapper).toList();
@@ -59,19 +59,19 @@ public class TheatreServiceImpl implements TheatreService {
 		if(id == null) {
 			throw new IllegalArgumentException("theatre id is null");
 		}
-		if(theatreRepo.existsByNameIgnoreCaseAndIdNot(theatre.name(), id)) {
+		if(theatreRepo.existsByNameIgnoreCaseAndIdNot(theatre.name().trim(), id)) {
 			throw new IllegalArgumentException("theatre already exists");
 		}
 		Theatre theatre1 = theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
 		theatre1.setName(theatre.name().trim());
-		theatre1.setAddress(theatre.address());
-		theatre1.setCity(theatre.city());
+		theatre1.setAddress(theatre.address().trim());
+		theatre1.setCity(theatre.city().trim());
 		return theatreMapper(theatreRepo.save(theatre1));
 	}
 	
 	@Override
 	public void deleteTheatre(String Name) {
-		if (Name == null || Name.trim().isEmpty()) {
+		if (Name == null || Name.trim().isBlank()) {
 			throw new IllegalArgumentException("title is null or empty");
 		}
 		Theatre theatre= theatreRepo.findByNameIgnoreCase(Name).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
