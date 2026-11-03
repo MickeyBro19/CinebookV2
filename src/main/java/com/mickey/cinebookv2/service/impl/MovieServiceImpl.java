@@ -21,11 +21,12 @@ public class MovieServiceImpl implements MovieService {
 	
 	@Override
 	public MovieResponse createMovie(CreateMovieRequest movie) {
-		if(movieRepo.findByTitleIgnoreCase(movie.title()).isPresent()) {
+		String title=movie.title().trim();
+		if(movieRepo.findByTitleIgnoreCase(title).isPresent()) {
 			throw new IllegalArgumentException("Title already exists");
 		}
 		Movie newMovie = Movie.builder()
-				.title(movie.title().trim())
+				.title(title)
 				.synopsis(movie.synopsis())
 				.durationMinutes(movie.durationMinutes())
 				.releaseDate(movie.releaseDate())

@@ -62,17 +62,17 @@ public class ScreenServiceImpl implements ScreenService {
 				pageSize,
 				Sort.by("id").descending()
 		                                  );
-		return screenRepo.findAll(PageRequest.of(page, pageSize)).map(this :: screenMapper);
+		return screenRepo.findAll(pageable).map(this :: screenMapper);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<ScreenResponse> getScreen(String Name) {
-		if (Name.isEmpty()) {
+	public List<ScreenResponse> getScreen(String name) {
+		if (name.isEmpty()|| name.trim().isEmpty() ) {
 			throw new IllegalArgumentException("Name is empty");
 		}
 		
-		return screenRepo.findByScreenNameContainingIgnoreCase(Name.trim()).stream().map(this :: screenMapper).toList();
+		return screenRepo.findByScreenNameContainingIgnoreCase(name.trim()).stream().map(this :: screenMapper).toList();
 	}
 	
 	@Override

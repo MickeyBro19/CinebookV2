@@ -11,7 +11,7 @@ public interface ScreenService {
 	
 	Page<ScreenResponse> getScreens(int page, int pageSize);
 	
-	List<ScreenResponse> getScreen(String Name);
+	List<ScreenResponse> getScreen(String name);
 	
 	ScreenResponse updateScreen(Long id, CreateScreenRequest screen);
 	

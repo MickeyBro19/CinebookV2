@@ -58,7 +58,7 @@ public class MovieController {
 	@PutMapping
 	public ResponseEntity<MovieResponse> updateMovie(
 			@RequestParam Long id,
-			@RequestBody CreateMovieRequest movie) {
+			@Valid @RequestBody CreateMovieRequest movie) {
 		
 		return ResponseEntity.ok(
 				movieService.updateMovie(id, movie)

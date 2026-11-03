@@ -21,11 +21,12 @@ public class TheatreServiceImpl implements TheatreService {
 	
 	@Override
 	public TheatreResponse createTheatre(CreateTheatreRequest theatre) {
-		if (theatreRepo.findByNameIgnoreCase(theatre.name()).isPresent()) {
+		String name= theatre.name().trim();
+		if (theatreRepo.findByNameIgnoreCase(name).isPresent()) {
 			throw new IllegalArgumentException("theatre already exists");
 		}
 		Theatre theatre1 = Theatre.builder()
-				.name(theatre.name()).address(theatre.address()).city(theatre.city()).build();
+				.name(name).address(theatre.address()).city(theatre.city()).build();
 		return theatreMapper(theatreRepo.save(theatre1));
 	}
 	
@@ -59,7 +60,7 @@ public class TheatreServiceImpl implements TheatreService {
 			throw new IllegalArgumentException("theatre id is null");
 		}
 		Theatre theatre1 = theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
-		theatre1.setName(theatre.name());
+		theatre1.setName(theatre.name().trim());
 		theatre1.setAddress(theatre.address());
 		theatre1.setCity(theatre.city());
 		return theatreMapper(theatreRepo.save(theatre1));
