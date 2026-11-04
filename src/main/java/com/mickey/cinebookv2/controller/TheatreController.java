@@ -2,6 +2,7 @@ package com.mickey.cinebookv2.controller;
 
 import com.mickey.cinebookv2.dto.CreateTheatreRequest;
 import com.mickey.cinebookv2.dto.TheatreResponse;
+import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.service.TheatreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,9 @@ public class TheatreController {
 			@RequestParam(defaultValue = "10") int size) {
 		
 		if (page < 0 || size < 1 || size > 100) {
-			return ResponseEntity.badRequest().build();
+			throw new BadRequestException(
+					"Invalid pagination parameters. Page must be non-negative and size must be between 1 and 100"
+			);
 		}
 		
 		return ResponseEntity.ok(
@@ -47,10 +50,10 @@ public class TheatreController {
 	// Search theatres by title
 	@GetMapping("/search")
 	public ResponseEntity<List<TheatreResponse>> searchTheatres(
-			@RequestParam String title) {
+			@RequestParam String name) {
 		
 		return ResponseEntity.ok(
-				theatreService.getTheatre(title)
+				theatreService.getTheatre(name)
 		                        );
 	}
 	

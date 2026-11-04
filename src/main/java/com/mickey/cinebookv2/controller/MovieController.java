@@ -2,6 +2,7 @@ package com.mickey.cinebookv2.controller;
 
 import com.mickey.cinebookv2.dto.CreateMovieRequest;
 import com.mickey.cinebookv2.dto.MovieResponse;
+import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.service.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +34,12 @@ public class MovieController {
 	@GetMapping
 	public ResponseEntity<Page<MovieResponse>> getMovies(
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		
+			@RequestParam(defaultValue = "10") int size
+	                                                    ) {
 		if (page < 0 || size < 1 || size > 100) {
-			return ResponseEntity.badRequest().build();
+			throw new BadRequestException(
+					"Invalid pagination parameters. Page must be non-negative and size must be between 1 and 100"
+			);
 		}
 		
 		return ResponseEntity.ok(
@@ -54,7 +57,7 @@ public class MovieController {
 		                        );
 	}
 	
-	// Update a movie by title
+	// Update a movie by id
 	@PutMapping("/{id}")
 	public ResponseEntity<MovieResponse> updateMovie(
 			@PathVariable Long id,
@@ -65,7 +68,7 @@ public class MovieController {
 		                        );
 	}
 	
-	// Delete a movie by title
+	// Delete a movie by id
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteMovie(
 			@PathVariable Long id) {

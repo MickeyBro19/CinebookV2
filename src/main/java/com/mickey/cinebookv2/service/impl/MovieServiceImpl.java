@@ -24,8 +24,8 @@ public class MovieServiceImpl implements MovieService {
 	
 	@Override
 	public MovieResponse createMovie(CreateMovieRequest movie) {
-		String title=movie.title().trim();
-		if(movieRepo.findByTitleIgnoreCase(title).isPresent()) {
+		String title = movie.title().trim();
+		if (movieRepo.findByTitleIgnoreCase(title).isPresent()) {
 			throw new DuplicateResourceException("Movie title already exists");
 		}
 		Movie newMovie = Movie.builder()
@@ -64,18 +64,18 @@ public class MovieServiceImpl implements MovieService {
 		if (title == null || title.trim().isEmpty()) {
 			throw new BadRequestException("Movie title cannot be empty");
 		}
-		return movieRepo.findByTitleContainingIgnoreCase(title.trim()).stream().map(this::movieMapper).toList();
+		return movieRepo.findByTitleContainingIgnoreCase(title.trim()).stream().map(this :: movieMapper).toList();
 	}
 	
 	@Override
 	public MovieResponse updateMovie(Long id, CreateMovieRequest movie) {
-		if(id==null) {
-			throw new IllegalArgumentException("Movie Id is null");
+		if (id == null) {
+			throw new BadRequestException("Movie ID cannot be null");
 		}
-		if(movieRepo.existsByTitleIgnoreCaseAndIdNot(movie.title().trim(), id)) {
+		if (movieRepo.existsByTitleIgnoreCaseAndIdNot(movie.title().trim(), id)) {
 			throw new DuplicateResourceException("Movie title already exists");
 		}
-		Movie uMovie = movieRepo.findById(id).orElseThrow(() ->  new ResourceNotFoundException(
+		Movie uMovie = movieRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException(
 				"Movie not found with ID: " + id
 		));
 		uMovie.setTitle(movie.title().trim());
@@ -89,7 +89,10 @@ public class MovieServiceImpl implements MovieService {
 	
 	@Override
 	public void deleteMovie(Long id) {
-		Movie movie = movieRepo.findById(id).orElseThrow(() ->  new ResourceNotFoundException(
+		if (id == null) {
+			throw new BadRequestException("Movie ID cannot be null");
+		}
+		Movie movie = movieRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException(
 				"Movie not found with ID: " + id
 		));
 		movieRepo.delete(movie);

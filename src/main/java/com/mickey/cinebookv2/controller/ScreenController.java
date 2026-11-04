@@ -2,6 +2,7 @@ package com.mickey.cinebookv2.controller;
 
 import com.mickey.cinebookv2.dto.CreateScreenRequest;
 import com.mickey.cinebookv2.dto.ScreenResponse;
+import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.service.ScreenService;
 
 import jakarta.validation.Valid;
@@ -33,13 +34,15 @@ public class ScreenController {
 	@GetMapping
 	public ResponseEntity<Page<ScreenResponse>> getScreens(
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int pageSize) {
-		if (page < 0 || pageSize < 1 || pageSize > 100) {
-			return ResponseEntity.badRequest().build();
+			@RequestParam(defaultValue = "10") int size) {
+		if (page < 0 || size < 1 || size > 100) {
+			throw new BadRequestException(
+					"Invalid pagination parameters. Page must be non-negative and size must be between 1 and 100"
+			);
 		}
 		
 		return ResponseEntity.ok(
-				screenService.getScreens(page, pageSize)
+				screenService.getScreens(page, size)
 		                        );
 	}
 	

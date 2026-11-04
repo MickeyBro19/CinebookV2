@@ -40,7 +40,7 @@ public class ScreenServiceImpl implements ScreenService {
 				            );
 		String screenName = screen.screenName().trim();
 		if (screenName.isEmpty()) {
-			throw new IllegalArgumentException("screen name is empty");
+			throw new BadRequestException("Screen name cannot be empty");
 		}
 		if (screenRepo.existsByTheatreIdAndScreenNameIgnoreCase(
 				theatre.getId(), screenName)) {
@@ -109,7 +109,7 @@ public class ScreenServiceImpl implements ScreenService {
 				            );
 		String screenName = screen.screenName().trim();
 		if (screenName.isEmpty()) {
-			throw new IllegalArgumentException("screen name is empty");
+			throw new BadRequestException("Screen name cannot be empty");
 		}
 		boolean duplicate =
 				screenRepo.existsByTheatreIdAndScreenNameIgnoreCaseAndIdNot(

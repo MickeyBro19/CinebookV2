@@ -71,7 +71,7 @@ public class TheatreServiceImpl implements TheatreService {
 	@Override
 	public TheatreResponse updateTheatre(Long id, CreateTheatreRequest theatre) {
 		if (id == null) {
-			throw new IllegalArgumentException("theatre id is null");
+			throw new BadRequestException("Theatre ID cannot be null");
 		}
 		if (theatreRepo.existsByNameIgnoreCaseAndIdNot(
 				theatre.name().trim(), id)) {
@@ -95,7 +95,9 @@ public class TheatreServiceImpl implements TheatreService {
 	
 	@Override
 	public void deleteTheatre(Long id) {
-		
+		if (id == null) {
+			throw new BadRequestException("Theatre ID cannot be null");
+		}
 		Theatre theatre = theatreRepo.findById(id)
 				.orElseThrow(() ->
 						             new ResourceNotFoundException(
