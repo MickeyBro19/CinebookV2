@@ -4,6 +4,8 @@ import com.mickey.cinebookv2.dto.CreateSeat;
 import com.mickey.cinebookv2.dto.SeatResponse;
 import com.mickey.cinebookv2.entity.Screen;
 import com.mickey.cinebookv2.entity.Seat;
+import com.mickey.cinebookv2.exception.DuplicateResourceException;
+import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.ScreenRepo;
 import com.mickey.cinebookv2.repo.SeatRepo;
 import com.mickey.cinebookv2.service.SeatService;
@@ -27,7 +29,7 @@ public class SeatServiceImpl implements SeatService {
 		
 		Screen screen = screenRepository.findById(request.screenId())
 				.orElseThrow(() ->
-						             new IllegalArgumentException(
+						             new ResourceNotFoundException(
 								             "Screen not found with ID: " + request.screenId()
 						             ));
 		
@@ -38,7 +40,7 @@ public class SeatServiceImpl implements SeatService {
 		if (seatRepository.existsByScreenIdAndRowLabelIgnoreCaseAndSeatNumber(
 				screen.getId(), rowLabel, request.seatNumber())) {
 			
-			throw new IllegalArgumentException(
+			throw new DuplicateResourceException(
 					"Seat already exists at row " + rowLabel
 							+ " and seat number " + request.seatNumber()
 			);
@@ -60,7 +62,7 @@ public class SeatServiceImpl implements SeatService {
 		
 		Seat seat = seatRepository.findById(id)
 				.orElseThrow(() ->
-						             new IllegalArgumentException(
+						             new ResourceNotFoundException(
 								             "Seat not found with ID: " + id
 						             ));
 		
@@ -71,7 +73,7 @@ public class SeatServiceImpl implements SeatService {
 	public List<SeatResponse> getSeatsByScreen(Long screenId) {
 		
 		if (!screenRepository.existsById(screenId)) {
-			throw new IllegalArgumentException(
+			throw new ResourceNotFoundException(
 					"Screen not found with ID: " + screenId
 			);
 		}
@@ -88,7 +90,7 @@ public class SeatServiceImpl implements SeatService {
 		
 		Seat seat = seatRepository.findById(id)
 				.orElseThrow(() ->
-						             new IllegalArgumentException(
+						             new ResourceNotFoundException(
 								             "Seat not found with ID: " + id
 						             ));
 		

@@ -3,6 +3,9 @@ package com.mickey.cinebookv2.service.impl;
 import com.mickey.cinebookv2.dto.CreateMovieRequest;
 import com.mickey.cinebookv2.dto.MovieResponse;
 import com.mickey.cinebookv2.entity.Movie;
+import com.mickey.cinebookv2.exception.BadRequestException;
+import com.mickey.cinebookv2.exception.DuplicateResourceException;
+import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.MovieRepo;
 import com.mickey.cinebookv2.service.MovieService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,7 @@ public class MovieServiceImpl implements MovieService {
 	public MovieResponse createMovie(CreateMovieRequest movie) {
 		String title=movie.title().trim();
 		if(movieRepo.findByTitleIgnoreCase(title).isPresent()) {
-			throw new IllegalArgumentException("Title already exists");
+			throw new DuplicateResourceException("Movie title already exists");
 		}
 		Movie newMovie = Movie.builder()
 				.title(title)
@@ -59,7 +62,7 @@ public class MovieServiceImpl implements MovieService {
 	@Override
 	public List<MovieResponse> getMovie(String title) {
 		if (title == null || title.trim().isEmpty()) {
-			throw new IllegalArgumentException("Movie title is null or empty");
+			throw new BadRequestException("Movie title cannot be empty");
 		}
 		return movieRepo.findByTitleContainingIgnoreCase(title.trim()).stream().map(this::movieMapper).toList();
 	}
@@ -70,9 +73,11 @@ public class MovieServiceImpl implements MovieService {
 			throw new IllegalArgumentException("Movie Id is null");
 		}
 		if(movieRepo.existsByTitleIgnoreCaseAndIdNot(movie.title().trim(), id)) {
-			throw new IllegalArgumentException("Title already exists");
+			throw new DuplicateResourceException("Movie title already exists");
 		}
-		Movie uMovie = movieRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie not found"));
+		Movie uMovie = movieRepo.findById(id).orElseThrow(() ->  new ResourceNotFoundException(
+				"Movie not found with ID: " + id
+		));
 		uMovie.setTitle(movie.title().trim());
 		uMovie.setSynopsis(movie.synopsis());
 		uMovie.setDurationMinutes(movie.durationMinutes());
@@ -84,7 +89,9 @@ public class MovieServiceImpl implements MovieService {
 	
 	@Override
 	public void deleteMovie(Long id) {
-		Movie movie = movieRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie not found"));
+		Movie movie = movieRepo.findById(id).orElseThrow(() ->  new ResourceNotFoundException(
+				"Movie not found with ID: " + id
+		));
 		movieRepo.delete(movie);
 		
 	}

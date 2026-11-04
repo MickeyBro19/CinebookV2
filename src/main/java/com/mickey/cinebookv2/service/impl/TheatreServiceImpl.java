@@ -3,6 +3,10 @@ package com.mickey.cinebookv2.service.impl;
 import com.mickey.cinebookv2.dto.CreateTheatreRequest;
 import com.mickey.cinebookv2.dto.TheatreResponse;
 import com.mickey.cinebookv2.entity.Theatre;
+import com.mickey.cinebookv2.exception.BadRequestException;
+import com.mickey.cinebookv2.exception.DuplicateResourceException;
+import com.mickey.cinebookv2.exception.ResourceConflictException;
+import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.ScreenRepo;
 import com.mickey.cinebookv2.repo.TheatreRepo;
 import com.mickey.cinebookv2.service.TheatreService;
@@ -23,9 +27,11 @@ public class TheatreServiceImpl implements TheatreService {
 	
 	@Override
 	public TheatreResponse createTheatre(CreateTheatreRequest theatre) {
-		String name= theatre.name().trim();
+		String name = theatre.name().trim();
 		if (theatreRepo.findByNameIgnoreCase(name).isPresent()) {
-			throw new IllegalArgumentException("theatre already exists");
+			throw new DuplicateResourceException(
+					"Theatre already exists with name: " + name
+			);
 		}
 		Theatre theatre1 = Theatre.builder()
 				.name(name).address(theatre.address().trim()).city(theatre.city().trim()).build();
@@ -49,22 +55,38 @@ public class TheatreServiceImpl implements TheatreService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<TheatreResponse> getTheatre(String Name) {
-		if (Name == null || Name.isBlank()) {
-			throw new IllegalArgumentException("Theatre title is null or empty");
+	public List<TheatreResponse> getTheatre(String name) {
+		if (name == null || name.isBlank()) {
+			throw new BadRequestException(
+					"Theatre name cannot be empty"
+			);
 		}
-		return theatreRepo.findByNameContainingIgnoreCase(Name).stream().map(this :: theatreMapper).toList();
+		
+		return theatreRepo.findByNameContainingIgnoreCase(name.trim())
+				.stream()
+				.map(this :: theatreMapper)
+				.toList();
 	}
 	
 	@Override
 	public TheatreResponse updateTheatre(Long id, CreateTheatreRequest theatre) {
-		if(id == null) {
+		if (id == null) {
 			throw new IllegalArgumentException("theatre id is null");
 		}
-		if(theatreRepo.existsByNameIgnoreCaseAndIdNot(theatre.name().trim(), id)) {
-			throw new IllegalArgumentException("theatre already exists");
+		if (theatreRepo.existsByNameIgnoreCaseAndIdNot(
+				theatre.name().trim(), id)) {
+			
+			throw new DuplicateResourceException(
+					"Theatre already exists with name: " + theatre.name()
+			);
 		}
-		Theatre theatre1 = theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
+		
+		Theatre theatre1 = theatreRepo.findById(id)
+				.orElseThrow(() ->
+						             new ResourceNotFoundException(
+								             "Theatre not found with ID: " + id
+						             )
+				            );
 		theatre1.setName(theatre.name().trim());
 		theatre1.setAddress(theatre.address().trim());
 		theatre1.setCity(theatre.city().trim());
@@ -73,11 +95,20 @@ public class TheatreServiceImpl implements TheatreService {
 	
 	@Override
 	public void deleteTheatre(Long id) {
-		Theatre theatre= theatreRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("theatre not found"));
-		if(screenRepo.existsByTheatreId(id)){
-			throw new IllegalArgumentException("Cannot delete theatre containing screens");
-		}
-		theatreRepo.delete(theatre);
 		
+		Theatre theatre = theatreRepo.findById(id)
+				.orElseThrow(() ->
+						             new ResourceNotFoundException(
+								             "Theatre not found with ID: " + id
+						             )
+				            );
+		
+		if (screenRepo.existsByTheatreId(id)) {
+			throw new ResourceConflictException(
+					"Cannot delete theatre containing screens"
+			);
+		}
+		
+		theatreRepo.delete(theatre);
 	}
 }

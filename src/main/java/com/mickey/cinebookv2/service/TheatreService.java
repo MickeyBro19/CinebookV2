@@ -9,7 +9,7 @@ import java.util.List;
 public interface TheatreService {
 	TheatreResponse createTheatre(CreateTheatreRequest theatre);
 	Page<TheatreResponse> getTheatres(int page, int pageSize);
-	List<TheatreResponse> getTheatre(String Name);
+	List<TheatreResponse> getTheatre(String name);
 	TheatreResponse updateTheatre(Long id,CreateTheatreRequest theatre);
 	void deleteTheatre(Long id);
 }
