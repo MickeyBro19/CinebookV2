@@ -10,6 +10,7 @@ import com.mickey.cinebookv2.exception.ResourceConflictException;
 import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.ScreenRepo;
 import com.mickey.cinebookv2.repo.SeatRepo;
+import com.mickey.cinebookv2.repo.ShowRepo;
 import com.mickey.cinebookv2.repo.TheatreRepo;
 import com.mickey.cinebookv2.service.ScreenService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class ScreenServiceImpl implements ScreenService {
 	private final ScreenRepo screenRepo;
 	private final TheatreRepo theatreRepo;
 	private final SeatRepo seatRepo;
+	private final ShowRepo showRepo;
 	
 	@Override
 	public ScreenResponse createScreen(CreateScreenRequest screen) {
@@ -143,6 +145,12 @@ public class ScreenServiceImpl implements ScreenService {
 		if (seatRepo.existsByScreenId(screenId)) {
 			throw new ResourceConflictException(
 					"Cannot delete screen containing seats"
+			);
+		}
+		
+		if (showRepo.existsByScreenId(screenId)) {
+			throw new ResourceConflictException(
+					"Cannot delete screen because it is associated with existing shows"
 			);
 		}
 		

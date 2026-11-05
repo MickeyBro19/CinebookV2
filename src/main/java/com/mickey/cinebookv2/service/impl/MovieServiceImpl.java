@@ -5,8 +5,10 @@ import com.mickey.cinebookv2.dto.MovieResponse;
 import com.mickey.cinebookv2.entity.Movie;
 import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.exception.DuplicateResourceException;
+import com.mickey.cinebookv2.exception.ResourceConflictException;
 import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.MovieRepo;
+import com.mickey.cinebookv2.repo.ShowRepo;
 import com.mickey.cinebookv2.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import java.util.List;
 @Transactional
 public class MovieServiceImpl implements MovieService {
 	private final MovieRepo movieRepo;
+	private final ShowRepo showRepo;
 	
 	@Override
 	public MovieResponse createMovie(CreateMovieRequest movie) {
@@ -95,6 +98,11 @@ public class MovieServiceImpl implements MovieService {
 		Movie movie = movieRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException(
 				"Movie not found with ID: " + id
 		));
+		if (showRepo.existsByMovieId(id)) {
+			throw new ResourceConflictException(
+					"Cannot delete movie because it is associated with existing shows"
+			);
+		}
 		movieRepo.delete(movie);
 		
 	}

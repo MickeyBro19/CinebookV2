@@ -6,7 +6,8 @@ import com.mickey.cinebookv2.entity.Movie;
 import com.mickey.cinebookv2.entity.Screen;
 import com.mickey.cinebookv2.entity.Show;
 import com.mickey.cinebookv2.entity.enums.ShowStatus;
-import com.mickey.cinebookv2.exception.BusinessException;
+import com.mickey.cinebookv2.exception.BadRequestException;
+import com.mickey.cinebookv2.exception.ResourceConflictException;
 import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.MovieRepo;
 import com.mickey.cinebookv2.repo.ScreenRepo;
@@ -115,7 +116,7 @@ public class ShowServiceImpl implements ShowService {
 		Show show = getShow(id);
 		
 		if (show.getStatus() != ShowStatus.SCHEDULED) {
-			throw new BusinessException(
+			throw new ResourceConflictException(
 					"Only scheduled shows can be updated"
 			);
 		}
@@ -168,7 +169,7 @@ public class ShowServiceImpl implements ShowService {
 		Show show = getShow(id);
 		
 		if (show.getStatus() != ShowStatus.SCHEDULED) {
-			throw new BusinessException(
+			throw new ResourceConflictException(
 					"Only scheduled shows can be cancelled"
 			);
 		}
@@ -189,7 +190,7 @@ public class ShowServiceImpl implements ShowService {
 	private void validateTimeInterval(Instant startTime, Instant endTime) {
 		
 		if (!startTime.isBefore(endTime)) {
-			throw new BusinessException(
+			throw new BadRequestException(
 					"Show start time must be before end time"
 			);
 		}
@@ -219,7 +220,7 @@ public class ShowServiceImpl implements ShowService {
 		                                        );
 		
 		if (overlap) {
-			throw new BusinessException(
+			throw new ResourceConflictException(
 					"This screen already has a scheduled show during the requested time"
 			);
 		}

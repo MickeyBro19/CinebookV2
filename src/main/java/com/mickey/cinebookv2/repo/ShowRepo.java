@@ -32,5 +32,9 @@ public interface ShowRepo extends JpaRepository<Show, Long> {
 	
 	Page<Show> findByMovieId(Long movieId, Pageable pageable);
 	
+	boolean existsByMovieId(Long movieId);
+	
+	boolean existsByScreenId(Long screenId);
+	
 	
 }
