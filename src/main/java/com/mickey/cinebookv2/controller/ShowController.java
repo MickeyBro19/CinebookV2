@@ -2,14 +2,14 @@ package com.mickey.cinebookv2.controller;
 
 import com.mickey.cinebookv2.dto.CreateShowRequest;
 import com.mickey.cinebookv2.dto.ShowResponse;
+import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.service.ShowService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +42,20 @@ public class ShowController {
 	@GetMapping("/screen/{screenId}")
 	public ResponseEntity<Page<ShowResponse>> getShowsByScreen(
 			@PathVariable Long screenId,
-			@PageableDefault(size = 10) Pageable pageable
-	                                                          ) {
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		
+		if (page < 0 || size < 1 || size > 100) {
+			throw new BadRequestException(
+					"Invalid pagination parameters. Page must be non-negative and size must be between 1 and 100"
+			);
+		}
+		Pageable pageable = PageRequest.of(
+				page,
+				size,
+				Sort.by("startTime").descending()
+		                                  );
+		
 		
 		return ResponseEntity.ok(
 				showService.getShowsByScreen(screenId, pageable)
@@ -53,8 +65,20 @@ public class ShowController {
 	@GetMapping("/movie/{movieId}")
 	public ResponseEntity<Page<ShowResponse>> getShowsByMovie(
 			@PathVariable Long movieId,
-			@PageableDefault(size = 10) Pageable pageable
-	                                                         ) {
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		
+		if (page < 0 || size < 1 || size > 100) {
+			throw new BadRequestException(
+					"Invalid pagination parameters. Page must be non-negative and size must be between 1 and 100"
+			);
+		}
+		Pageable pageable = PageRequest.of(
+				page,
+				size,
+				Sort.by("startTime").descending()
+		                                  );
+		
 		
 		return ResponseEntity.ok(
 				showService.getShowsByMovie(movieId, pageable)
