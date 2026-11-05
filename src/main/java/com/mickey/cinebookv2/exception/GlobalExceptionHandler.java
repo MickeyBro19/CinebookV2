@@ -77,7 +77,8 @@ public class GlobalExceptionHandler {
 	// 400 - Invalid request
 	@ExceptionHandler({
 			BadRequestException.class,
-			IllegalArgumentException.class
+			IllegalArgumentException.class,
+			BusinessException.class
 	})
 	public ResponseEntity<ApiError> handleBadRequest(
 			RuntimeException ex,
