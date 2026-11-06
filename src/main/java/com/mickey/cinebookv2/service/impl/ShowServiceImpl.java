@@ -82,19 +82,19 @@ public class ShowServiceImpl implements ShowService {
 				.status(ShowStatus.SCHEDULED)
 				.build();
 		
-		
-		// 7. Generate one inventory record per physical seat.
+		// 2. Persist the Show FIRST.
+		Show savedShow = showRepo.saveAndFlush(show);
+
+		// 3. Generate inventory using the persisted Show.
 		List<ShowSeat> inventory = physicalSeats.stream()
-				.map(seat -> new ShowSeat(show, seat))
+				.map(seat -> new ShowSeat(savedShow, seat))
 				.toList();
-		
-		
-		// 8. Persist all inventory records.
-		// Flush here so database insert failures surface inside this method.
+
+		// 4. Persist all ShowSeat records.
 		showSeatRepo.saveAllAndFlush(inventory);
-		
-		// 9. Return the Show response.
-		return mapToResponse(showRepo.saveAndFlush(show));
+
+		// 5. Return the response using the persisted Show.
+		return mapToResponse(savedShow);
 	}
 	
 	@Override
