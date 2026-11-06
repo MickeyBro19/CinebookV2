@@ -1,3 +1,4 @@
+
 package com.mickey.cinebookv2.service.impl;
 
 import com.mickey.cinebookv2.dto.CreateSeat;
@@ -22,26 +23,26 @@ import java.util.Locale;
 @Transactional
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
+	
 	private final SeatRepo seatRepo;
 	private final ScreenRepo screenRepo;
 	private final ShowRepo showRepo;
 	
 	@Override
-	@Transactional
 	public SeatResponse createSeat(CreateSeat request) {
 		
-		
-		Screen screen = screenRepo.findById(request.screenId())
-				.orElseThrow(() ->
-						             new ResourceNotFoundException(
-								             "Screen not found with ID: " + request.screenId()
-						             ));
+		// The fix is to make seat creation and deletion acquire the same Screen row lock used by show creation
+		Screen screen = screenRepo.findByIdForUpdate(request.screenId())
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Screen not found with ID: " + request.screenId()
+				));
 		
 		if (showRepo.existsByScreenId(screen.getId())) {
 			throw new ResourceConflictException(
-					"Cannot add seats to a screen that already has scheduled shows"
+					"Cannot add seats to a screen that already has shows"
 			);
 		}
+		
 		String rowLabel = request.rowLabel()
 				.trim()
 				.toUpperCase(Locale.ROOT);
@@ -70,10 +71,9 @@ public class SeatServiceImpl implements SeatService {
 	public SeatResponse getSeatById(Long id) {
 		
 		Seat seat = seatRepo.findById(id)
-				.orElseThrow(() ->
-						             new ResourceNotFoundException(
-								             "Seat not found with ID: " + id
-						             ));
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Seat not found with ID: " + id
+				));
 		
 		return mapToResponse(seat);
 	}
@@ -89,20 +89,32 @@ public class SeatServiceImpl implements SeatService {
 		
 		return seatRepo.findByScreenId(screenId)
 				.stream()
-				.map(this :: mapToResponse)
+				.map(this::mapToResponse)
 				.toList();
 	}
 	
 	@Override
-	@Transactional
 	public void deleteSeat(Long id) {
 		
+		// First identify which screen owns this seat.
+		Seat existingSeat = seatRepo.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Seat not found with ID: " + id
+				));
+		
+		Long screenId = existingSeat.getScreen().getId();
+		
+		// Acquire the same screen lock used by show creation.
+		screenRepo.findByIdForUpdate(screenId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Screen not found with ID: " + screenId
+				));
+		
+		// Re-fetch after acquiring the lock.
 		Seat seat = seatRepo.findById(id)
-				.orElseThrow(() ->
-						             new ResourceNotFoundException(
-								             "Seat not found with ID: " + id
-						             ));
-		Long screenId = seat.getScreen().getId();
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Seat not found with ID: " + id
+				));
 		
 		if (showRepo.existsByScreenId(screenId)) {
 			throw new ResourceConflictException(
