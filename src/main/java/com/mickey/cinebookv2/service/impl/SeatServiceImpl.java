@@ -5,9 +5,11 @@ import com.mickey.cinebookv2.dto.SeatResponse;
 import com.mickey.cinebookv2.entity.Screen;
 import com.mickey.cinebookv2.entity.Seat;
 import com.mickey.cinebookv2.exception.DuplicateResourceException;
+import com.mickey.cinebookv2.exception.ResourceConflictException;
 import com.mickey.cinebookv2.exception.ResourceNotFoundException;
 import com.mickey.cinebookv2.repo.ScreenRepo;
 import com.mickey.cinebookv2.repo.SeatRepo;
+import com.mickey.cinebookv2.repo.ShowRepo;
 import com.mickey.cinebookv2.service.SeatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,24 +22,31 @@ import java.util.Locale;
 @Transactional
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
-	private final SeatRepo seatRepository;
-	private final ScreenRepo screenRepository;
+	private final SeatRepo seatRepo;
+	private final ScreenRepo screenRepo;
+	private final ShowRepo showRepo;
 	
 	@Override
 	@Transactional
 	public SeatResponse createSeat(CreateSeat request) {
 		
-		Screen screen = screenRepository.findById(request.screenId())
+		
+		Screen screen = screenRepo.findById(request.screenId())
 				.orElseThrow(() ->
 						             new ResourceNotFoundException(
 								             "Screen not found with ID: " + request.screenId()
 						             ));
 		
+		if (showRepo.existsByScreenId(screen.getId())) {
+			throw new ResourceConflictException(
+					"Cannot add seats to a screen that already has scheduled shows"
+			);
+		}
 		String rowLabel = request.rowLabel()
 				.trim()
 				.toUpperCase(Locale.ROOT);
 		
-		if (seatRepository.existsByScreenIdAndRowLabelIgnoreCaseAndSeatNumber(
+		if (seatRepo.existsByScreenIdAndRowLabelIgnoreCaseAndSeatNumber(
 				screen.getId(), rowLabel, request.seatNumber())) {
 			
 			throw new DuplicateResourceException(
@@ -52,7 +61,7 @@ public class SeatServiceImpl implements SeatService {
 				.seatNumber(request.seatNumber())
 				.build();
 		
-		Seat savedSeat = seatRepository.save(seat);
+		Seat savedSeat = seatRepo.save(seat);
 		
 		return mapToResponse(savedSeat);
 	}
@@ -60,7 +69,7 @@ public class SeatServiceImpl implements SeatService {
 	@Override
 	public SeatResponse getSeatById(Long id) {
 		
-		Seat seat = seatRepository.findById(id)
+		Seat seat = seatRepo.findById(id)
 				.orElseThrow(() ->
 						             new ResourceNotFoundException(
 								             "Seat not found with ID: " + id
@@ -72,13 +81,13 @@ public class SeatServiceImpl implements SeatService {
 	@Override
 	public List<SeatResponse> getSeatsByScreen(Long screenId) {
 		
-		if (!screenRepository.existsById(screenId)) {
+		if (!screenRepo.existsById(screenId)) {
 			throw new ResourceNotFoundException(
 					"Screen not found with ID: " + screenId
 			);
 		}
 		
-		return seatRepository.findByScreenId(screenId)
+		return seatRepo.findByScreenId(screenId)
 				.stream()
 				.map(this :: mapToResponse)
 				.toList();
@@ -88,13 +97,20 @@ public class SeatServiceImpl implements SeatService {
 	@Transactional
 	public void deleteSeat(Long id) {
 		
-		Seat seat = seatRepository.findById(id)
+		Seat seat = seatRepo.findById(id)
 				.orElseThrow(() ->
 						             new ResourceNotFoundException(
 								             "Seat not found with ID: " + id
 						             ));
+		Long screenId = seat.getScreen().getId();
 		
-		seatRepository.delete(seat);
+		if (showRepo.existsByScreenId(screenId)) {
+			throw new ResourceConflictException(
+					"Cannot delete seats from a screen that already has shows"
+			);
+		}
+		
+		seatRepo.delete(seat);
 	}
 	
 	private SeatResponse mapToResponse(Seat seat) {

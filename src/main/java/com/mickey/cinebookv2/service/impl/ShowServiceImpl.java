@@ -2,16 +2,12 @@ package com.mickey.cinebookv2.service.impl;
 
 import com.mickey.cinebookv2.dto.CreateShowRequest;
 import com.mickey.cinebookv2.dto.ShowResponse;
-import com.mickey.cinebookv2.entity.Movie;
-import com.mickey.cinebookv2.entity.Screen;
-import com.mickey.cinebookv2.entity.Show;
+import com.mickey.cinebookv2.entity.*;
 import com.mickey.cinebookv2.entity.enums.ShowStatus;
 import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.exception.ResourceConflictException;
 import com.mickey.cinebookv2.exception.ResourceNotFoundException;
-import com.mickey.cinebookv2.repo.MovieRepo;
-import com.mickey.cinebookv2.repo.ScreenRepo;
-import com.mickey.cinebookv2.repo.ShowRepo;
+import com.mickey.cinebookv2.repo.*;
 import com.mickey.cinebookv2.service.ShowService;
 
 import lombok.RequiredArgsConstructor;
@@ -33,21 +29,31 @@ public class ShowServiceImpl implements ShowService {
 	private final ShowRepo showRepo;
 	private final MovieRepo movieRepo;
 	private final ScreenRepo screenRepo;
+	private final SeatRepo seatRepo;
+	private final ShowSeatRepo showSeatRepo;
 	
 	@Override
 	@Transactional
 	public ShowResponse createShow(CreateShowRequest request) {
 		
-		validateTimeInterval(request.startTime(), request.endTime());
+		// 1. Validate the requested time interval.
+		validateTimeInterval(
+				request.startTime(),
+				request.endTime()
+		                    );
 		
-		// Lock the screen before checking for overlapping shows.
+		// 2. Lock the Screen before checking scheduling conflicts.
 		Screen screen = getLockedScreen(request.screenId());
 		
+		// 3. Retrieve the Movie.
 		Movie movie = movieRepo.findById(request.movieId())
-				.orElseThrow(() -> new ResourceNotFoundException(
-						"Movie not found with id: " + request.movieId()
-				));
+				.orElseThrow(() ->
+						             new ResourceNotFoundException(
+								             "Movie not found with id: " + request.movieId()
+						             )
+				            );
 		
+		// 4. Check whether another scheduled Show overlaps.
 		validateNoOverlap(
 				screen.getId(),
 				request.startTime(),
@@ -55,6 +61,18 @@ public class ShowServiceImpl implements ShowService {
 				null
 		                 );
 		
+		// 5. Retrieve all physical seats belonging to this Screen.
+		List<Seat> physicalSeats =
+				seatRepo.findByScreenId(screen.getId());
+		
+		// A Show without physical seats should not be scheduled.
+		if (physicalSeats.isEmpty()) {
+			throw new ResourceConflictException(
+					"Cannot schedule a show on a screen without seats"
+			);
+		}
+		
+		// 6. Create and persist the Show.
 		Show show = Show.builder()
 				.movie(movie)
 				.screen(screen)
@@ -64,7 +82,19 @@ public class ShowServiceImpl implements ShowService {
 				.status(ShowStatus.SCHEDULED)
 				.build();
 		
-		return mapToResponse(showRepo.save(show));
+		
+		// 7. Generate one inventory record per physical seat.
+		List<ShowSeat> inventory = physicalSeats.stream()
+				.map(seat -> new ShowSeat(show, seat))
+				.toList();
+		
+		
+		// 8. Persist all inventory records.
+		// Flush here so database insert failures surface inside this method.
+		showSeatRepo.saveAllAndFlush(inventory);
+		
+		// 9. Return the Show response.
+		return mapToResponse(showRepo.saveAndFlush(show));
 	}
 	
 	@Override
@@ -123,6 +153,14 @@ public class ShowServiceImpl implements ShowService {
 		
 		Long oldScreenId = show.getScreen().getId();
 		Long newScreenId = request.screenId();
+		
+		if (!oldScreenId.equals(newScreenId)
+				&& showSeatRepo.existsByShowId(id)) {
+			
+			throw new ResourceConflictException(
+					"Cannot change the screen after seat inventory has been generated"
+			);
+		}
 		
 		List<Long> screenIds = oldScreenId.equals(newScreenId)
 				? List.of(oldScreenId)
