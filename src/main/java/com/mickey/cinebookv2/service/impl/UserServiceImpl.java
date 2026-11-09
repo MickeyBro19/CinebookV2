@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 @Service
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
 		
 		String fullName = request.fullName().trim();
 		String email = normalizeEmail(request.email());
+		String password = request.password();
 		
 		if (fullName.isBlank()) {
 			throw new BadRequestException(
@@ -47,6 +49,14 @@ public class UserServiceImpl implements UserService {
 		if (email.isBlank()) {
 			throw new BadRequestException(
 					"Email is required"
+			);
+		}
+		
+		int passwordBytes = password.getBytes(StandardCharsets.UTF_8).length;
+		
+		if (passwordBytes < 12 || passwordBytes > 72) {
+			throw new BadRequestException(
+					"Password must contain between 12 and 72 UTF-8 bytes"
 			);
 		}
 		
