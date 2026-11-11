@@ -259,4 +259,20 @@ public class GlobalExceptionHandler {
 						request
 				                ));
 	}
+	
+	//401 - Authentication Errors
+	@ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+	public ResponseEntity<ApiError> handleAuthenticationFailure(
+			org.springframework.security.core.AuthenticationException ex,
+			HttpServletRequest request
+	                                                           ) {
+		HttpStatus status = HttpStatus.UNAUTHORIZED;
+		
+		return ResponseEntity.status(status)
+				.body(buildError(
+						status,
+						"Invalid email or password",
+						request
+				                ));
+	}
 }
