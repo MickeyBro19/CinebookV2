@@ -1,13 +1,13 @@
-package com.mickey.cinebookv2.service.impl;
+package com.mickey.cinebookv2.auth.service.impl;
 
-import com.mickey.cinebookv2.dto.CreateUserRequest;
-import com.mickey.cinebookv2.dto.UserResponse;
-import com.mickey.cinebookv2.entity.User;
-import com.mickey.cinebookv2.entity.enums.Role;
+import com.mickey.cinebookv2.auth.entity.Role;
+import com.mickey.cinebookv2.auth.repo.UserRepo;
+import com.mickey.cinebookv2.auth.dto.CreateUserRequest;
+import com.mickey.cinebookv2.auth.dto.UserResponse;
+import com.mickey.cinebookv2.auth.entity.User;
+import com.mickey.cinebookv2.auth.service.UserService;
 import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.exception.DuplicateResourceException;
-import com.mickey.cinebookv2.repo.UserRepo;
-import com.mickey.cinebookv2.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,5 +1,7 @@
 package com.mickey.cinebookv2.service.impl;
 
+import com.mickey.cinebookv2.auth.entity.User;
+import com.mickey.cinebookv2.auth.repo.UserRepo;
 import com.mickey.cinebookv2.dto.BookingResponse;
 import com.mickey.cinebookv2.dto.CreateBookingRequest;
 import com.mickey.cinebookv2.entity.*;

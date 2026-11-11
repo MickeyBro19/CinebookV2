@@ -1,6 +1,6 @@
-package com.mickey.cinebookv2.dto;
+package com.mickey.cinebookv2.auth.dto;
 
-import com.mickey.cinebookv2.entity.enums.Role;
+import com.mickey.cinebookv2.auth.entity.Role;
 
 public record UserResponse(
 		Long id,

@@ -1,4 +1,4 @@
-package com.mickey.cinebookv2.config;
+package com.mickey.cinebookv2.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
-package com.mickey.cinebookv2.repo;
+package com.mickey.cinebookv2.auth.repo;
 
-import com.mickey.cinebookv2.entity.User;
+import com.mickey.cinebookv2.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

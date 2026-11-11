@@ -1,5 +1,6 @@
 package com.mickey.cinebookv2.entity;
 
+import com.mickey.cinebookv2.auth.entity.User;
 import com.mickey.cinebookv2.entity.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
