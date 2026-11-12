@@ -121,6 +121,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 		}
 	}
 	
+	@Override
 	public String generateRawToken() {
 		
 		byte[] bytes = new byte[64];

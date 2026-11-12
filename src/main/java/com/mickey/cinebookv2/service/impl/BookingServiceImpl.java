@@ -4,16 +4,24 @@ import com.mickey.cinebookv2.auth.entity.User;
 import com.mickey.cinebookv2.auth.repo.UserRepo;
 import com.mickey.cinebookv2.dto.BookingResponse;
 import com.mickey.cinebookv2.dto.CreateBookingRequest;
-import com.mickey.cinebookv2.entity.*;
+import com.mickey.cinebookv2.entity.Booking;
+import com.mickey.cinebookv2.entity.BookingSeat;
+import com.mickey.cinebookv2.entity.Show;
+import com.mickey.cinebookv2.entity.ShowSeat;
 import com.mickey.cinebookv2.entity.enums.BookingStatus;
 import com.mickey.cinebookv2.entity.enums.SeatInventoryStatus;
 import com.mickey.cinebookv2.entity.enums.ShowStatus;
 import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.exception.ResourceConflictException;
 import com.mickey.cinebookv2.exception.ResourceNotFoundException;
-import com.mickey.cinebookv2.repo.*;
+import com.mickey.cinebookv2.repo.BookingRepo;
+import com.mickey.cinebookv2.repo.BookingSeatRepo;
+import com.mickey.cinebookv2.repo.ShowRepo;
+import com.mickey.cinebookv2.repo.ShowSeatRepo;
 import com.mickey.cinebookv2.service.BookingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,15 +41,15 @@ public class BookingServiceImpl implements BookingService {
 	
 	@Override
 	@Transactional
-	public BookingResponse createBooking(User authenticatedUser, CreateBookingRequest request) {
+	public BookingResponse createBooking(Long userId, CreateBookingRequest request) {
 		
 		//  Validate the trusted user reference.
-		if (authenticatedUser == null || authenticatedUser.getId() == null) {
+		if (userId == null) {
 			throw new BadRequestException("An authenticated user is required to create a booking");
 		}
 		
 		//  Load the managed User entity.
-		User user = userRepo.findById(authenticatedUser.getId())
+		User user = userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 		
 		//  Validate the request.
@@ -111,6 +119,43 @@ public class BookingServiceImpl implements BookingService {
 		List<Long> bookedSeatIds = lockedInventory.stream().map(ss -> ss.getSeat().getId()).toList();
 		return new BookingResponse(savedBooking.getId(), savedBooking.getBookingReference(), show.getId(),
 		                           savedBooking.getStatus(), savedBooking.getTotalAmount(), savedBooking.getCreatedAt(), bookedSeatIds);
+	}
+	
+	@Override
+	public Page<BookingResponse> getMyBookings(Long userId, Pageable pageable) {
+		if (userId == null) {
+			throw new BadRequestException("An authenticated user is required to get my bookings");
+		}
+		return bookingRepo.findByUserId(userId, pageable).map(booking -> new BookingResponse(
+				booking.getId(),
+				booking.getBookingReference(),
+				booking.getShow().getId(),
+				booking.getStatus(),
+				booking.getTotalAmount(),
+				booking.getCreatedAt(),
+				bookingSeatRepo.findByBookingId(booking.getId()).stream().map(s -> s.getSeat().getId()).toList()
+		));
+		
+	}
+	
+	@Override
+	public BookingResponse getBookingByReference(String bookingReference, Long authenticatedUserId, Boolean isAdmin) {
+		if (bookingReference == null || bookingReference.isEmpty()) {
+			throw new BadRequestException("Booking reference is required");
+		}
+		Booking booking = bookingRepo.findByBookingReference(bookingReference).orElseThrow(() -> new ResourceNotFoundException("Booking reference not found"));
+		if(!isAdmin && !booking.getUser().getId().equals(authenticatedUserId) ) {
+			throw new ResourceNotFoundException("Booking not found");
+		}
+		return new BookingResponse(
+				booking.getId(),
+				booking.getBookingReference(),
+				booking.getShow().getId(),
+				booking.getStatus(),
+				booking.getTotalAmount(),
+				booking.getCreatedAt(),
+				bookingSeatRepo.findByBookingId(booking.getId()).stream().map(s -> s.getSeat().getId()).toList()
+		);
 	}
 	
 	
