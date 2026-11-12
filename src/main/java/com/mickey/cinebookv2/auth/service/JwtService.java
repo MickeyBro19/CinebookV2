@@ -57,21 +57,24 @@ public class JwtService {
 	}
 	
 	public Long extractUserId(String token) {
+		
 		Claims claims = Jwts.parser()
 				.verifyWith(signingKey)
 				.requireIssuer(issuer)
 				.build()
 				.parseSignedClaims(token)
 				.getPayload();
-		if (!claims.get("token_type").equals(TOKEN_TYPE)) {
+		
+		String tokenType = claims.get("token_type", String.class);
+		
+		if (!TOKEN_TYPE.equals(tokenType)) {
 			throw new JwtException("Unexpected token type");
 		}
 		
 		try {
 			return Long.valueOf(claims.getSubject());
-		}
-		catch (NumberFormatException e) {
-			throw new JwtException("Invalid token Subject");
+		} catch (NumberFormatException ex) {
+			throw new JwtException("Invalid token subject", ex);
 		}
 	}
 	
