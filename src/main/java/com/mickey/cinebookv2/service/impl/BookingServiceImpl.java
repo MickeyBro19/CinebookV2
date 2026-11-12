@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -123,19 +124,45 @@ public class BookingServiceImpl implements BookingService {
 	
 	@Override
 	public Page<BookingResponse> getMyBookings(Long userId, Pageable pageable) {
+		
 		if (userId == null) {
-			throw new BadRequestException("An authenticated user is required to get my bookings");
+			throw new BadRequestException(
+					"An authenticated user is required to get my bookings"
+			);
 		}
-		return bookingRepo.findByUserId(userId, pageable).map(booking -> new BookingResponse(
+		
+		Page<Booking> bookings = bookingRepo.findByUserId(userId, pageable);
+		
+		// Extract all booking IDs from the current page.
+		List<Long> bookingIds = bookings.getContent()
+				.stream()
+				.map(Booking :: getId)
+				.toList();
+		
+		// Fetch all seats belonging to those bookings in one query.
+		List<BookingSeat> bookingSeats =
+				bookingSeatRepo.findByBookingIdIn(bookingIds);
+		
+		// Group seats by booking ID.
+		Map<Long, List<Long>> seatsByBooking = bookingSeats.stream()
+				.collect(Collectors.groupingBy(
+						bookingSeat -> bookingSeat.getBooking().getId(),
+						Collectors.mapping(
+								bookingSeat -> bookingSeat.getSeat().getId(),
+								Collectors.toList()
+						                  )
+				                              ));
+		
+		// Build the response using the already-fetched data.
+		return bookings.map(booking -> new BookingResponse(
 				booking.getId(),
 				booking.getBookingReference(),
 				booking.getShow().getId(),
 				booking.getStatus(),
 				booking.getTotalAmount(),
 				booking.getCreatedAt(),
-				bookingSeatRepo.findByBookingId(booking.getId()).stream().map(s -> s.getSeat().getId()).toList()
+				seatsByBooking.getOrDefault(booking.getId(), List.of())
 		));
-		
 	}
 	
 	@Override
@@ -144,7 +171,7 @@ public class BookingServiceImpl implements BookingService {
 			throw new BadRequestException("Booking reference is required");
 		}
 		Booking booking = bookingRepo.findByBookingReference(bookingReference).orElseThrow(() -> new ResourceNotFoundException("Booking reference not found"));
-		if(!isAdmin && !booking.getUser().getId().equals(authenticatedUserId) ) {
+		if (!isAdmin && !booking.getUser().getId().equals(authenticatedUserId)) {
 			throw new ResourceNotFoundException("Booking not found");
 		}
 		return new BookingResponse(

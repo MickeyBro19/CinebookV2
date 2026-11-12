@@ -44,7 +44,7 @@ public class JwtService {
 	
 	public String createAccessToken(CustomUserDetails principal) {
 		Instant now = Instant.now();
-		Instant expiry = Instant.now().plusSeconds(accessTokenTtlSeconds);
+		Instant expiry = now.plusSeconds(accessTokenTtlSeconds);
 		
 		return Jwts.builder()
 				.issuer(issuer)

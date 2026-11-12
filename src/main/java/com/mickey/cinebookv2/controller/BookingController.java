@@ -4,10 +4,12 @@ import com.mickey.cinebookv2.auth.entity.CustomUserDetails;
 import com.mickey.cinebookv2.dto.BookingResponse;
 import com.mickey.cinebookv2.dto.CreateBookingRequest;
 
+import com.mickey.cinebookv2.exception.BadRequestException;
 import com.mickey.cinebookv2.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +39,17 @@ public class BookingController {
 	@GetMapping("/me")
 	public ResponseEntity<Page<BookingResponse>> getMyBookings(
 			@AuthenticationPrincipal CustomUserDetails principal,
-			Pageable pageable
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size
 	                                                          ) {
+		if (page < 0 || size < 1 || size > 100) {
+			throw new BadRequestException(
+					"Page must be non-negative and size must be between 1 and 100"
+			);
+		}
+		
+		Pageable pageable = PageRequest.of(page, size);
+		
 		return ResponseEntity.ok(
 				bookingService.getMyBookings(principal.getUserId(), pageable)
 		                        );
