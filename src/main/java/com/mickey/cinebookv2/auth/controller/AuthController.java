@@ -4,8 +4,6 @@ import com.mickey.cinebookv2.auth.dto.*;
 import com.mickey.cinebookv2.auth.service.AuthService;
 import com.mickey.cinebookv2.auth.service.RefreshTokenService;
 import com.mickey.cinebookv2.auth.service.UserService;
-import com.mickey.cinebookv2.dto.*;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,7 +31,7 @@ public class AuthController {
 	public ResponseEntity<RefreshResponse> login(
 			@Valid @RequestBody LoginRequest request
 	                                            ) {
-		return ResponseEntity.ok(authService.loginWithRefreshToken(request));
+		return ResponseEntity.ok(authService.login(request));
 	}
 	
 	@PostMapping("/refresh")
