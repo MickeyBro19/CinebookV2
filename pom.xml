@@ -123,20 +123,16 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Flyway migration engine -->
+        <!-- Spring Boot Flyway integration -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>13.12.1</version>
-            <scope>compile</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
 
-        <!-- Required database-specific Flyway support for PostgreSQL -->
+        <!-- PostgreSQL support for Flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-            <version>13.12.1</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>
