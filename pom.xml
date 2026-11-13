@@ -123,6 +123,21 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Flyway migration engine -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>13.12.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Required database-specific Flyway support for PostgreSQL -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>13.12.1</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
