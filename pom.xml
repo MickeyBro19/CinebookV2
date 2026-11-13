@@ -135,6 +135,15 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
+        <!-- Standard testing support: JUnit 5, Mockito, AssertJ and Spring Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>4.1.2</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
 
