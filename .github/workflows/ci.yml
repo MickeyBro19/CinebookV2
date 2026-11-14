@@ -26,7 +26,7 @@ jobs:
       DB_URL: jdbc:postgresql://localhost:5432/cinebook_flyway_test
       DB_USER: postgres
       DB_PASS: 0000
-      JWT_SECRET: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+      JWT_SECRET: Y/KF+hjpwMSbEh/Hb5Vg3FuHx85qG0pb2tJfDeASgKM=
 
     steps:
       - name: Checkout repository
