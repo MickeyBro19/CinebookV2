@@ -22,6 +22,12 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
 
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/cinebook_flyway_test
+      DB_USER: postgres
+      DB_PASS: 0000
+      JWT_SECRET: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
