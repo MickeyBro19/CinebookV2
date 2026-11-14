@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_URL: jdbc:postgresql://localhost:5432/cinebook_flyway_test
+      DB_URL: jdbc:postgresql://localhost:5432/cinebookv2
       DB_USER: postgres
       DB_PASS: 0000
       JWT_SECRET: Y/KF+hjpwMSbEh/Hb5Vg3FuHx85qG0pb2tJfDeASgKM=
